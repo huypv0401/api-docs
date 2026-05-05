@@ -1,0 +1,4 @@
+export { DocumentRepository } from './document'
+export { EndpointRepository } from './endpoint'
+export { ExampleRepository } from './example'
+export { SharePermissionRepository } from './share-permission'

@@ -1,0 +1,55 @@
+import { z } from 'zod'
+import { HTTP_METHODS, CODE_LANGUAGES } from './types'
+
+export const HTTPMethodSchema = z.enum(HTTP_METHODS as [string, ...string[]])
+
+export const CreateDocumentSchema = z.object({
+  title: z.string().min(1).max(255),
+  description: z.string().max(2000).optional(),
+})
+
+export const UpdateDocumentSchema = z.object({
+  title: z.string().min(1).max(255).optional(),
+  description: z.string().max(2000).nullable().optional(),
+})
+
+export const CreateEndpointSchema = z.object({
+  name: z.string().min(1).max(255),
+  method: HTTPMethodSchema,
+  url: z.string().min(1).max(2048),
+  headers: z.record(z.string(), z.string()).optional().default({}),
+  queryParams: z.record(z.string(), z.string()).optional().default({}),
+  body: z.string().nullable().optional(),
+  description: z.string().max(2000).nullable().optional(),
+})
+
+export const UpdateEndpointSchema = CreateEndpointSchema.partial()
+
+export const CreateExampleSchema = z.object({
+  type: z.enum(['request', 'response']),
+  name: z.string().min(1).max(255),
+  description: z.string().max(2000).nullable().optional(),
+  jsonContent: z.string().min(1), // validated as JSON string
+  statusCode: z.number().int().min(100).max(599).nullable().optional(),
+})
+
+export const ShareDocumentSchema = z.object({
+  email: z.string().email(),
+})
+
+export const CodeGenRequestSchema = z.object({
+  method: HTTPMethodSchema,
+  url: z.string().min(1),
+  headers: z.record(z.string(), z.string()).optional(),
+  queryParams: z.record(z.string(), z.string()).optional(),
+  body: z.string().nullable().optional(),
+  language: z.enum(CODE_LANGUAGES as [string, ...string[]]),
+})
+
+export type CreateDocumentInput = z.infer<typeof CreateDocumentSchema>
+export type UpdateDocumentInput = z.infer<typeof UpdateDocumentSchema>
+export type CreateEndpointInput = z.infer<typeof CreateEndpointSchema>
+export type UpdateEndpointInput = z.infer<typeof UpdateEndpointSchema>
+export type CreateExampleInput = z.infer<typeof CreateExampleSchema>
+export type ShareDocumentInput = z.infer<typeof ShareDocumentSchema>
+export type CodeGenRequestInput = z.infer<typeof CodeGenRequestSchema>
