@@ -33,16 +33,18 @@ export async function POST(request: NextRequest) {
     const isOwner = await docRepo.isOwner(overwriteId, user.id)
     if (!isOwner) return Response.json({ error: 'Forbidden' }, { status: 403 })
 
-    // Update title/description
     await docRepo.update(overwriteId, { title: parsed.title, description: parsed.description ?? null }, user.id)
+    // Save raw postman
+    await supabase.from('api_documents').update({ raw_postman: body }).eq('id', overwriteId)
 
-    // Delete all existing endpoints (cascades to examples via DB or we do it manually)
     const existing = await endpointRepo.findByDocumentId(overwriteId)
     await Promise.all(existing.map((ep) => endpointRepo.delete(ep.id)))
 
     docId = overwriteId
   } else {
     const doc = await docRepo.create({ title: parsed.title, description: parsed.description ?? undefined }, user.id)
+    // Save raw postman
+    await supabase.from('api_documents').update({ raw_postman: body }).eq('id', doc.id)
     docId = doc.id
   }
 

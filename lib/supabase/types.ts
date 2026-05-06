@@ -16,6 +16,7 @@ export type Database = {
           title: string
           description: string | null
           owner_id: string
+          raw_postman: unknown | null
           created_at: string
           updated_at: string
         }
@@ -24,6 +25,7 @@ export type Database = {
           title: string
           description?: string | null
           owner_id: string
+          raw_postman?: unknown | null
           created_at?: string
           updated_at?: string
         }
@@ -32,6 +34,7 @@ export type Database = {
           title?: string
           description?: string | null
           owner_id?: string
+          raw_postman?: unknown | null
           created_at?: string
           updated_at?: string
         }

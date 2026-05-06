@@ -15,9 +15,15 @@ export async function GET(
   const doc = await repo.findById(documentId, user.id)
   if (!doc) return Response.json({ error: 'Not found or access denied' }, { status: 404 })
 
-  const printer = new PostmanPrinter()
-  const collection = printer.print(doc)
+  // Check for raw postman JSON
+  const { data: raw } = await supabase
+    .from('api_documents')
+    .select('raw_postman, title')
+    .eq('id', documentId)
+    .single()
+
   const filename = `${doc.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.postman_collection.json`
+  const collection = raw?.raw_postman ?? new PostmanPrinter().print(doc)
 
   return new Response(JSON.stringify(collection, null, 2), {
     headers: {
