@@ -13,6 +13,7 @@ function mapExample(row: ExampleRow): Example {
     description: row.description,
     jsonContent: row.json_content,
     statusCode: row.status_code,
+    responseHeaders: (row.response_headers as Record<string, string> | null) ?? null,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   }
@@ -41,6 +42,7 @@ export class ExampleRepository {
         description: input.description ?? null,
         json_content: jsonContent,
         status_code: input.statusCode ?? null,
+        response_headers: input.responseHeaders ?? null,
       })
       .select()
       .single()

@@ -3,7 +3,7 @@ import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import type { Database } from '@/lib/supabase/types'
 import { DocumentRepository } from '@/lib/repositories'
-import { EndpointDetail } from '@/components/documents/EndpointDetail'
+import { EndpointList } from '@/components/documents/EndpointList'
 import { Markdown } from '@/components/ui/Markdown'
 import { SharedExportButton } from '@/components/import-export/SharedExportButton'
 import { SharedImportButton } from '@/components/import-export/SharedImportButton'
@@ -73,11 +73,7 @@ export default async function SharedDocumentPage({ params }: PageProps) {
           <p className="text-sm text-gray-500 dark:text-zinc-400">No endpoints.</p>
         </div>
       ) : (
-        <div className="space-y-4">
-          {doc.endpoints.map((endpoint) => (
-            <EndpointDetail key={endpoint.id} endpoint={endpoint} documentId={doc.id} isOwner={canEdit} />
-          ))}
-        </div>
+        <EndpointList endpoints={doc.endpoints} documentId={doc.id} isOwner={canEdit} />
       )}
     </div>
   )

@@ -13,6 +13,7 @@ interface ParsedExample {
   description: string | null
   jsonContent: unknown
   statusCode: number | null
+  responseHeaders: Record<string, string> | null
 }
 
 interface ParsedEndpoint {
@@ -132,15 +133,19 @@ export class PostmanParser {
             try { reqJson = JSON.parse(normalized) } catch { reqJson = { raw: normalized } }
           }
           if (reqJson) {
-            examples.push({ type: 'request', name: exName, description: null, jsonContent: reqJson, statusCode: null })
+            examples.push({ type: 'request', name: exName, description: null, jsonContent: reqJson, statusCode: null, responseHeaders: null })
           }
         }
 
-        // Response: from body
+        // Response: from body + headers
         if (resp.body) {
           let resJson: unknown
           try { resJson = JSON.parse(resp.body) } catch { resJson = { raw: resp.body } }
-          examples.push({ type: 'response', name: exName, description: null, jsonContent: resJson, statusCode: resp.code ?? null })
+          const responseHeaders: Record<string, string> = {}
+          for (const h of resp.header ?? []) {
+            if (h.key) responseHeaders[h.key] = h.value ?? ''
+          }
+          examples.push({ type: 'response', name: exName, description: null, jsonContent: resJson, statusCode: resp.code ?? null, responseHeaders: Object.keys(responseHeaders).length ? responseHeaders : null })
         }
       }
 
@@ -149,7 +154,7 @@ export class PostmanParser {
         const normalized = body.replace(/\r\n/g, '\n').replace(/\r/g, '\n')
         let jsonContent: unknown
         try { jsonContent = JSON.parse(normalized) } catch { jsonContent = { raw: normalized } }
-        examples.push({ type: 'request', name: item.name, description: null, jsonContent, statusCode: null })
+        examples.push({ type: 'request', name: item.name, description: null, jsonContent, statusCode: null, responseHeaders: null })
       }
 
       return {

@@ -29,8 +29,9 @@ export const CreateExampleSchema = z.object({
   type: z.enum(['request', 'response']),
   name: z.string().min(1).max(255),
   description: z.string().max(2000).nullable().optional(),
-  jsonContent: z.string().min(1), // validated as JSON string
+  jsonContent: z.string().min(1),
   statusCode: z.number().int().min(100).max(599).nullable().optional(),
+  responseHeaders: z.record(z.string(), z.string()).nullable().optional(),
 })
 
 export const ShareDocumentSchema = z.object({

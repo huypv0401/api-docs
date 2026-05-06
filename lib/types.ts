@@ -18,6 +18,7 @@ export interface Example {
   description: string | null
   jsonContent: unknown
   statusCode: number | null
+  responseHeaders: Record<string, string> | null
   createdAt: string
   updatedAt: string
 }

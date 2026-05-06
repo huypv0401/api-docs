@@ -91,6 +91,7 @@ export type Database = {
           description: string | null
           json_content: unknown
           status_code: number | null
+          response_headers: Record<string, string> | null
           created_at: string
           updated_at: string
         }
@@ -102,6 +103,7 @@ export type Database = {
           description?: string | null
           json_content: unknown
           status_code?: number | null
+          response_headers?: Record<string, string> | null
           created_at?: string
           updated_at?: string
         }
@@ -113,6 +115,7 @@ export type Database = {
           description?: string | null
           json_content?: unknown
           status_code?: number | null
+          response_headers?: Record<string, string> | null
           created_at?: string
           updated_at?: string
         }

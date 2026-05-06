@@ -66,6 +66,7 @@ export async function POST(request: NextRequest) {
         description: ex.description ?? undefined,
         jsonContent: JSON.stringify(ex.jsonContent),
         statusCode: ex.statusCode ?? undefined,
+        responseHeaders: ex.responseHeaders ?? undefined,
       })
     }
   }

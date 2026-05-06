@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { getUser } from '@/lib/supabase/server'
 import { DocumentRepository } from '@/lib/repositories'
 import { EndpointDetail } from '@/components/documents/EndpointDetail'
+import { EndpointList } from '@/components/documents/EndpointList'
 import { PostmanExportButton } from '@/components/import-export/PostmanExportButton'
 import { PostmanOverwriteButton } from '@/components/import-export/PostmanOverwriteButton'
 import { Markdown } from '@/components/ui/Markdown'
@@ -74,11 +75,7 @@ export default async function DocumentDetailPage({ params }: PageProps) {
           )}
         </div>
       ) : (
-        <div className="space-y-4">
-          {doc.endpoints.map((endpoint) => (
-            <EndpointDetail key={endpoint.id} endpoint={endpoint} documentId={id} isOwner={isOwner} />
-          ))}
-        </div>
+        <EndpointList endpoints={doc.endpoints} documentId={id} isOwner={isOwner} />
       )}
     </div>
   )

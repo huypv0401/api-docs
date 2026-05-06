@@ -21,10 +21,11 @@ interface EndpointDetailProps {
   endpoint: Endpoint
   documentId: string
   isOwner: boolean
+  initialExpanded?: boolean
 }
 
-export function EndpointDetail({ endpoint, documentId, isOwner }: EndpointDetailProps) {
-  const [expanded, setExpanded] = useState(false)
+export function EndpointDetail({ endpoint, documentId, isOwner, initialExpanded = true }: EndpointDetailProps) {
+  const [expanded, setExpanded] = useState(initialExpanded)
   const [activeTab, setActiveTab] = useState<'details' | 'examples' | 'codegen'>('details')
   const [isDeleting, setIsDeleting] = useState(false)
   const router = useRouter()
@@ -43,11 +44,13 @@ export function EndpointDetail({ endpoint, documentId, isOwner }: EndpointDetail
         className="flex w-full items-center gap-3 p-4 text-left hover:bg-gray-50 dark:hover:bg-zinc-800/50"
         aria-expanded={expanded}
       >
-        <span className={`shrink-0 rounded px-2 py-0.5 text-xs font-bold ${METHOD_COLORS[endpoint.method] ?? METHOD_COLORS.OPTIONS}`}>
+        <span className={`shrink-0 self-start rounded px-2 py-0.5 text-xs font-bold ${METHOD_COLORS[endpoint.method] ?? METHOD_COLORS.OPTIONS}`}>
           {endpoint.method}
         </span>
-        <span className="flex-1 truncate font-mono text-sm text-gray-900 dark:text-zinc-100">{endpoint.url}</span>
-        <span className="shrink-0 text-sm text-gray-500 dark:text-zinc-400">{endpoint.name}</span>
+        <div className="min-w-0 flex-1">
+          <div className="truncate font-mono text-sm text-gray-900 dark:text-zinc-100">{endpoint.url}</div>
+          <div className="mt-0.5 truncate text-xs text-gray-500 dark:text-zinc-400">{endpoint.name}</div>
+        </div>
         <span className="shrink-0 text-gray-400" aria-hidden="true">{expanded ? '▲' : '▼'}</span>
       </button>
 
@@ -132,6 +135,9 @@ export function EndpointDetail({ endpoint, documentId, isOwner }: EndpointDetail
                 endpointId={endpoint.id}
                 documentId={documentId}
                 isOwner={isOwner}
+                method={endpoint.method}
+                url={endpoint.url}
+                headers={endpoint.headers}
               />
             )}
 
