@@ -47,12 +47,13 @@ export async function proxy(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   // Protected routes - redirect to login if not authenticated
-  const isProtectedRoute = 
+  const isProtectedRoute =
     request.nextUrl.pathname.startsWith('/documents') ||
     request.nextUrl.pathname.startsWith('/api/documents') ||
     request.nextUrl.pathname.startsWith('/api/import') ||
     request.nextUrl.pathname.startsWith('/api/export') ||
     request.nextUrl.pathname.startsWith('/api/codegen')
+  // /shared/* is public — no auth required
 
   if (isProtectedRoute && !user) {
     // Redirect to login page

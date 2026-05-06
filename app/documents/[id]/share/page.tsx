@@ -19,7 +19,10 @@ export default async function ShareDocumentPage({ params }: PageProps) {
   if (doc.ownerId !== user.id) redirect(`/documents/${id}`)
 
   const shareRepo = new SharePermissionRepository(supabase)
-  const permissions = await shareRepo.findByDocumentId(id)
+  const [permissions, shareLinks] = await Promise.all([
+    shareRepo.findByDocumentId(id),
+    shareRepo.findShareLinks(id),
+  ])
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
@@ -30,7 +33,7 @@ export default async function ShareDocumentPage({ params }: PageProps) {
         <h1 className="mt-2 text-2xl font-bold text-gray-900 dark:text-zinc-100">Share "{doc.title}"</h1>
       </div>
       <div className="rounded-lg border border-gray-200 p-6 dark:border-zinc-700">
-        <ShareDialog documentId={id} ownerId={user.id} permissions={permissions} />
+        <ShareDialog documentId={id} ownerId={user.id} permissions={permissions} shareLinks={shareLinks} />
       </div>
     </div>
   )

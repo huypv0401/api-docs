@@ -27,7 +27,7 @@ export class SharePermissionRepository {
     return (data ?? []).map(mapPermission)
   }
 
-  async create(documentId: string, email: string, userId: string | null): Promise<SharePermission> {
+  async create(documentId: string, email: string, userId: string | null, permissionType: 'viewer' | 'editor' = 'viewer'): Promise<SharePermission> {
     const isPending = userId === null
     const { data, error } = await this.supabase
       .from('share_permissions')
@@ -35,7 +35,7 @@ export class SharePermissionRepository {
         document_id: documentId,
         email,
         user_id: userId,
-        permission_type: 'viewer',
+        permission_type: permissionType,
         is_pending: isPending,
       })
       .select()
@@ -80,5 +80,28 @@ export class SharePermissionRepository {
       .limit(1)
       .single()
     return data?.user_id ?? null
+  }
+
+  async createShareLink(documentId: string, createdBy: string, permissionType: 'viewer' | 'editor'): Promise<string> {
+    const { data, error } = await this.supabase
+      .from('share_links')
+      .insert({ document_id: documentId, created_by: createdBy, permission_type: permissionType })
+      .select('id')
+      .single()
+    if (error || !data) throw new Error(error?.message ?? 'Failed to create share link')
+    return data.id
+  }
+
+  async findShareLinks(documentId: string): Promise<Array<{ id: string; permissionType: 'viewer' | 'editor'; createdAt: string }>> {
+    const { data } = await this.supabase
+      .from('share_links')
+      .select('id, permission_type, created_at')
+      .eq('document_id', documentId)
+      .order('created_at')
+    return (data ?? []).map((r) => ({ id: r.id, permissionType: r.permission_type as 'viewer' | 'editor', createdAt: r.created_at }))
+  }
+
+  async deleteShareLink(id: string): Promise<void> {
+    await this.supabase.from('share_links').delete().eq('id', id)
   }
 }

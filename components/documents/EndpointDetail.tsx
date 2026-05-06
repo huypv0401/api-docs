@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import type { Endpoint } from '@/lib/types'
 import { ExampleList } from '@/components/examples/ExampleList'
 import { CodeSnippetGenerator } from '@/components/codegen/CodeSnippetGenerator'
+import { Markdown } from '@/components/ui/Markdown'
 
 const METHOD_COLORS: Record<string, string> = {
   GET: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
@@ -84,7 +85,9 @@ export function EndpointDetail({ endpoint, documentId, isOwner }: EndpointDetail
             {activeTab === 'details' && (
               <div className="space-y-3 text-sm">
                 {endpoint.description && (
-                  <p className="text-gray-600 dark:text-zinc-400">{endpoint.description}</p>
+                  <div className="text-sm text-gray-600 dark:text-zinc-400">
+                    <Markdown>{endpoint.description}</Markdown>
+                  </div>
                 )}
                 {Object.keys(endpoint.headers).length > 0 && (
                   <div>

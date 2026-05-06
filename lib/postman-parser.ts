@@ -117,21 +117,39 @@ export class PostmanParser {
       const body = parseBody(item)
 
       const examples: ParsedExample[] = []
+
+      // Each item in response[] is a named example with its own request + response
       for (const resp of item.response ?? []) {
-        if (resp.body) {
-          try {
-            JSON.parse(resp.body)
-            examples.push({
-              type: 'response',
-              name: resp.name ?? 'Response',
-              description: null,
-              jsonContent: JSON.parse(resp.body),
-              statusCode: resp.code ?? null,
-            })
-          } catch {
-            // skip non-JSON response bodies
+        const exName = resp.name ?? item.name
+
+        // Request: from originalRequest (the request used for this example)
+        const origReq = resp.originalRequest
+        if (origReq) {
+          const reqBody = origReq.body?.raw ?? null
+          let reqJson: unknown = null
+          if (reqBody) {
+            const normalized = reqBody.replace(/\r\n/g, '\n').replace(/\r/g, '\n')
+            try { reqJson = JSON.parse(normalized) } catch { reqJson = { raw: normalized } }
+          }
+          if (reqJson) {
+            examples.push({ type: 'request', name: exName, description: null, jsonContent: reqJson, statusCode: null })
           }
         }
+
+        // Response: from body
+        if (resp.body) {
+          let resJson: unknown
+          try { resJson = JSON.parse(resp.body) } catch { resJson = { raw: resp.body } }
+          examples.push({ type: 'response', name: exName, description: null, jsonContent: resJson, statusCode: resp.code ?? null })
+        }
+      }
+
+      // Fallback: if no named examples, use the endpoint body itself as a request example
+      if (examples.length === 0 && body) {
+        const normalized = body.replace(/\r\n/g, '\n').replace(/\r/g, '\n')
+        let jsonContent: unknown
+        try { jsonContent = JSON.parse(normalized) } catch { jsonContent = { raw: normalized } }
+        examples.push({ type: 'request', name: item.name, description: null, jsonContent, statusCode: null })
       }
 
       return {

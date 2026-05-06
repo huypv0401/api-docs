@@ -121,7 +121,7 @@ export type Database = {
           document_id: string
           user_id: string | null
           email: string
-          permission_type: 'viewer'
+          permission_type: 'viewer' | 'editor'
           is_pending: boolean
           created_at: string
         }
@@ -130,7 +130,7 @@ export type Database = {
           document_id: string
           user_id?: string | null
           email: string
-          permission_type?: 'viewer'
+          permission_type?: 'viewer' | 'editor'
           is_pending?: boolean
           created_at?: string
         }
@@ -139,8 +139,32 @@ export type Database = {
           document_id?: string
           user_id?: string | null
           email?: string
-          permission_type?: 'viewer'
+          permission_type?: 'viewer' | 'editor'
           is_pending?: boolean
+          created_at?: string
+        }
+        Relationships: []
+      }
+      share_links: {
+        Row: {
+          id: string
+          document_id: string
+          permission_type: 'viewer' | 'editor'
+          created_by: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          document_id: string
+          permission_type?: 'viewer' | 'editor'
+          created_by: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          document_id?: string
+          permission_type?: 'viewer' | 'editor'
+          created_by?: string
           created_at?: string
         }
         Relationships: []

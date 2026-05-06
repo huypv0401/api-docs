@@ -35,6 +35,7 @@ export const CreateExampleSchema = z.object({
 
 export const ShareDocumentSchema = z.object({
   email: z.string().email(),
+  permissionType: z.enum(['viewer', 'editor']).optional().default('viewer'),
 })
 
 export const CodeGenRequestSchema = z.object({

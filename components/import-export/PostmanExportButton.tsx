@@ -39,7 +39,7 @@ export function PostmanExportButton({ documentId, title }: PostmanExportButtonPr
       <button
         onClick={handleExport}
         disabled={isLoading}
-        className="rounded bg-gray-100 px-3 py-2 text-sm text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
+        className="rounded bg-green-600 px-3 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
         aria-label="Export as Postman collection"
       >
         {isLoading ? 'Exporting...' : 'Export Postman'}

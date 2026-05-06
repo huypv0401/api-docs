@@ -63,9 +63,18 @@ export interface SharePermission {
   documentId: string
   userId: string | null
   email: string
-  permissionType: 'viewer'
+  permissionType: 'viewer' | 'editor'
   isPending: boolean
   createdAt: string
+}
+
+export interface ShareLink {
+  id: string
+  documentId: string
+  permissionType: 'viewer' | 'editor'
+  createdBy: string
+  createdAt: string
+  url?: string
 }
 
 // Postman collection types (v2.1)

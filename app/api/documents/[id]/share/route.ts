@@ -23,7 +23,7 @@ export async function POST(
 
   const shareRepo = new SharePermissionRepository(supabase)
   const existingUserId = await shareRepo.findUserByEmail(parsed.data.email)
-  const permission = await shareRepo.create(id, parsed.data.email, existingUserId)
+  const permission = await shareRepo.create(id, parsed.data.email, existingUserId, parsed.data.permissionType)
   return Response.json(permission, { status: 201 })
 }
 
@@ -40,6 +40,9 @@ export async function GET(
   if (!isOwner) return Response.json({ error: 'Forbidden' }, { status: 403 })
 
   const shareRepo = new SharePermissionRepository(supabase)
-  const permissions = await shareRepo.findByDocumentId(id)
-  return Response.json(permissions)
+  const [permissions, links] = await Promise.all([
+    shareRepo.findByDocumentId(id),
+    shareRepo.findShareLinks(id),
+  ])
+  return Response.json({ permissions, links })
 }

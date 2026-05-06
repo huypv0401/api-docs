@@ -25,10 +25,29 @@ export async function POST(request: NextRequest) {
   const endpointRepo = new EndpointRepository(supabase)
   const exampleRepo = new ExampleRepository(supabase)
 
-  const doc = await docRepo.create({ title: parsed.title, description: parsed.description ?? undefined }, user.id)
+  // Overwrite mode: documentId provided → delete existing endpoints then re-import
+  const overwriteId = request.nextUrl.searchParams.get('documentId')
+  let docId: string
+
+  if (overwriteId) {
+    const isOwner = await docRepo.isOwner(overwriteId, user.id)
+    if (!isOwner) return Response.json({ error: 'Forbidden' }, { status: 403 })
+
+    // Update title/description
+    await docRepo.update(overwriteId, { title: parsed.title, description: parsed.description ?? null }, user.id)
+
+    // Delete all existing endpoints (cascades to examples via DB or we do it manually)
+    const existing = await endpointRepo.findByDocumentId(overwriteId)
+    await Promise.all(existing.map((ep) => endpointRepo.delete(ep.id)))
+
+    docId = overwriteId
+  } else {
+    const doc = await docRepo.create({ title: parsed.title, description: parsed.description ?? undefined }, user.id)
+    docId = doc.id
+  }
 
   for (const ep of parsed.endpoints) {
-    const endpoint = await endpointRepo.create(doc.id, {
+    const endpoint = await endpointRepo.create(docId, {
       name: ep.name,
       method: ep.method,
       url: ep.url,
@@ -49,5 +68,5 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  return Response.json({ id: doc.id, title: doc.title }, { status: 201 })
+  return Response.json({ id: docId, title: parsed.title }, { status: 201 })
 }

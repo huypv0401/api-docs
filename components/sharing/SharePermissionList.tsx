@@ -30,7 +30,7 @@ export function SharePermissionList({ permissions, documentId, ownerId }: ShareP
           <div>
             <p className="text-sm text-gray-900 dark:text-zinc-100">{perm.email}</p>
             <p className="text-xs text-gray-500 dark:text-zinc-400">
-              {perm.isPending ? 'Pending (not yet registered)' : 'Viewer'}
+              {perm.isPending ? 'Pending' : perm.permissionType === 'editor' ? 'Can edit' : 'Can view'}
             </p>
           </div>
           <button

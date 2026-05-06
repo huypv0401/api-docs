@@ -4,6 +4,8 @@ import { getUser } from '@/lib/supabase/server'
 import { DocumentRepository } from '@/lib/repositories'
 import { EndpointDetail } from '@/components/documents/EndpointDetail'
 import { PostmanExportButton } from '@/components/import-export/PostmanExportButton'
+import { PostmanOverwriteButton } from '@/components/import-export/PostmanOverwriteButton'
+import { Markdown } from '@/components/ui/Markdown'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -31,23 +33,26 @@ export default async function DocumentDetailPage({ params }: PageProps) {
           </div>
           <h1 className="mt-2 text-2xl font-bold text-gray-900 dark:text-zinc-100">{doc.title}</h1>
           {doc.description && (
-            <p className="mt-1 text-sm text-gray-600 dark:text-zinc-400">{doc.description}</p>
+            <div className="mt-1 text-sm text-gray-600 dark:text-zinc-400">
+              <Markdown>{doc.description}</Markdown>
+            </div>
           )}
         </div>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <PostmanExportButton documentId={id} title={doc.title} />
           {isOwner && (
             <>
+              <PostmanOverwriteButton documentId={id} />
               <Link
                 href={`/documents/${id}/edit`}
-                className="rounded bg-gray-100 px-3 py-2 text-sm text-gray-700 hover:bg-gray-200 dark:bg-zinc-800 dark:text-zinc-300"
+                className="rounded bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
               >
                 Edit
               </Link>
               <Link
                 href={`/documents/${id}/share`}
-                className="rounded bg-gray-100 px-3 py-2 text-sm text-gray-700 hover:bg-gray-200 dark:bg-zinc-800 dark:text-zinc-300"
+                className="rounded bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
               >
                 Share
               </Link>
