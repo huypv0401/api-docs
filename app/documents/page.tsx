@@ -48,7 +48,7 @@ export default async function DocumentsPage({ searchParams }: PageProps) {
         ))}
       </div>
 
-      <DocumentList documents={documents} filter={validFilter} />
+      <DocumentList documents={documents} filter={validFilter} userId={user.id} />
     </div>
   )
 }

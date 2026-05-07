@@ -9,7 +9,6 @@ import { useRouter } from 'next/navigation'
 
 const NAV_LINKS = [
   { href: '/documents', label: 'Documents' },
-  { href: '/import', label: 'Import' },
 ]
 
 export function Navigation() {
