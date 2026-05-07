@@ -5,9 +5,14 @@ import type { Guide } from '@/lib/types'
 interface GuideDetailProps {
   guide: Guide
   isOwner: boolean
+  linkId?: string
 }
 
-export function GuideDetail({ guide, isOwner }: GuideDetailProps) {
+export function GuideDetail({ guide, isOwner, linkId }: GuideDetailProps) {
+  const editHref = linkId
+    ? `/shared/${linkId}/guides/${guide.id}/edit`
+    : `/documents/${guide.documentId}/guides/${guide.id}/edit`
+
   return (
     <article>
       {guide.coverImageUrl && (
@@ -22,10 +27,7 @@ export function GuideDetail({ guide, isOwner }: GuideDetailProps) {
           </p>
         </div>
         {isOwner && (
-          <Link
-            href={`/documents/${guide.documentId}/guides/${guide.id}/edit`}
-            className="rounded bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
-          >
+          <Link href={editHref} className="rounded bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700">
             Edit
           </Link>
         )}

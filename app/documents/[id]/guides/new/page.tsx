@@ -12,10 +12,9 @@ export default async function NewGuidePage({ params }: PageProps) {
   if (!user) redirect('/login')
 
   const { id } = await params
-  const repo = new DocumentRepository(supabase)
-  const doc = await repo.findById(id, user.id)
-  if (!doc) notFound()
-  if (doc.ownerId !== user.id) redirect(`/documents/${id}`)
+  const perm = await new DocumentRepository(supabase).getPermission(id, user.id)
+  if (!perm) notFound()
+  if (perm === 'viewer') redirect(`/documents/${id}/guides`)
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6">

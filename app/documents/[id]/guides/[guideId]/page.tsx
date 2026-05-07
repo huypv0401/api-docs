@@ -14,14 +14,13 @@ export default async function GuideDetailPage({ params }: PageProps) {
 
   const { id, guideId } = await params
   const docRepo = new DocumentRepository(supabase)
-  const doc = await docRepo.findById(id, user.id)
-  if (!doc) notFound()
+  const perm = await docRepo.getPermission(id, user.id)
+  if (!perm) notFound()
 
-  const repo = new GuideRepository(supabase)
-  const guide = await repo.findById(guideId, id)
+  const guide = await new GuideRepository(supabase).findById(guideId, id)
   if (!guide) notFound()
 
-  const isOwner = doc.ownerId === user.id
+  const canEdit = perm === 'owner' || perm === 'editor'
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
@@ -30,7 +29,7 @@ export default async function GuideDetailPage({ params }: PageProps) {
           ← Guides
         </Link>
       </div>
-      <GuideDetail guide={guide} isOwner={isOwner} />
+      <GuideDetail guide={guide} isOwner={canEdit} />
     </div>
   )
 }

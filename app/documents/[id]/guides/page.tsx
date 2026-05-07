@@ -14,32 +14,30 @@ export default async function DocumentGuidesPage({ params }: PageProps) {
 
   const { id } = await params
   const docRepo = new DocumentRepository(supabase)
-  const doc = await docRepo.findById(id, user.id)
-  if (!doc) notFound()
+  const perm = await docRepo.getPermission(id, user.id)
+  if (!perm) notFound()
 
-  const isOwner = doc.ownerId === user.id
-  const guideRepo = new GuideRepository(supabase)
-  const guides = await guideRepo.findAllByDocument(id)
+  const canEdit = perm === 'owner' || perm === 'editor'
+  const doc = await docRepo.findById(id, user.id)
+
+  const guides = await new GuideRepository(supabase).findAllByDocument(id)
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
       <div className="mb-6 flex items-center justify-between">
         <div>
           <Link href={`/documents/${id}`} className="text-sm text-gray-500 hover:text-gray-700 dark:text-zinc-400">
-            ← {doc.title}
+            ← {doc?.title}
           </Link>
           <h1 className="mt-2 text-2xl font-bold text-gray-900 dark:text-zinc-100">Guides</h1>
         </div>
-        {isOwner && (
-          <Link
-            href={`/documents/${id}/guides/new`}
-            className="rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
-          >
+        {canEdit && (
+          <Link href={`/documents/${id}/guides/new`} className="rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
             + New Guide
           </Link>
         )}
       </div>
-      <GuideList guides={guides} documentId={id} isOwner={isOwner} />
+      <GuideList guides={guides} documentId={id} isOwner={canEdit} />
     </div>
   )
 }

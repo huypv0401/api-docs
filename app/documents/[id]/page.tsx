@@ -39,12 +39,12 @@ export default async function DocumentDetailPage({ params }: PageProps) {
 
         <div className="flex flex-wrap items-center gap-2">
           <PostmanExportButton documentId={id} title={doc.title} />
+          <Link href={`/documents/${id}/guides`} className="rounded bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700">
+            Guides
+          </Link>
           {isOwner && (
             <>
               <PostmanOverwriteButton documentId={id} />
-              <Link href={`/documents/${id}/guides`} className="rounded bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700">
-                Guides
-              </Link>
               <Link href={`/documents/${id}/edit`} className="rounded bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700">
                 Edit
               </Link>

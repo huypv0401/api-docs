@@ -12,13 +12,11 @@ export default async function EditGuidePage({ params }: PageProps) {
   if (!user) redirect('/login')
 
   const { id, guideId } = await params
-  const docRepo = new DocumentRepository(supabase)
-  const doc = await docRepo.findById(id, user.id)
-  if (!doc) notFound()
-  if (doc.ownerId !== user.id) redirect(`/documents/${id}/guides/${guideId}`)
+  const perm = await new DocumentRepository(supabase).getPermission(id, user.id)
+  if (!perm) notFound()
+  if (perm === 'viewer') redirect(`/documents/${id}/guides/${guideId}`)
 
-  const repo = new GuideRepository(supabase)
-  const guide = await repo.findById(guideId, id)
+  const guide = await new GuideRepository(supabase).findById(guideId, id)
   if (!guide) notFound()
 
   return (

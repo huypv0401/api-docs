@@ -197,4 +197,23 @@ export class DocumentRepository {
       .single()
     return !!data
   }
+
+  async getPermission(id: string, userId: string): Promise<'owner' | 'editor' | 'viewer' | null> {
+    const { data: doc } = await this.supabase
+      .from('api_documents')
+      .select('owner_id')
+      .eq('id', id)
+      .single()
+    if (!doc) return null
+    if (doc.owner_id === userId) return 'owner'
+    const { data: perm } = await this.supabase
+      .from('share_permissions')
+      .select('permission_type')
+      .eq('document_id', id)
+      .eq('user_id', userId)
+      .eq('is_pending', false)
+      .single()
+    if (!perm) return null
+    return perm.permission_type as 'editor' | 'viewer'
+  }
 }

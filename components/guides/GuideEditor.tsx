@@ -9,9 +9,10 @@ interface GuideEditorProps {
   guide?: Guide
   documentId: string
   mode: 'create' | 'edit'
+  linkId?: string // present when editing via shared link
 }
 
-export function GuideEditor({ guide, documentId, mode }: GuideEditorProps) {
+export function GuideEditor({ guide, documentId, mode, linkId }: GuideEditorProps) {
   const router = useRouter()
   const [title, setTitle] = useState(guide?.title ?? '')
   const [content, setContent] = useState(guide?.content ?? '')
@@ -59,17 +60,21 @@ export function GuideEditor({ guide, documentId, mode }: GuideEditorProps) {
     setIsSubmitting(true)
     setError(null)
     try {
-      const url = mode === 'create'
+      const apiUrl = mode === 'create'
         ? `/api/documents/${documentId}/guides`
         : `/api/documents/${documentId}/guides/${guide!.id}`
-      const res = await fetch(url, {
+      const res = await fetch(apiUrl, {
         method: mode === 'create' ? 'POST' : 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title: title.trim(), content, coverImageUrl: coverImageUrl.trim() || null }),
       })
       if (!res.ok) throw new Error((await res.json()).error ?? 'Failed to save')
       const saved = await res.json()
-      router.push(`/documents/${documentId}/guides/${mode === 'create' ? saved.id : guide!.id}`)
+      const savedId = mode === 'create' ? saved.id : guide!.id
+      const redirectTo = linkId
+        ? `/shared/${linkId}/guides/${savedId}`
+        : `/documents/${documentId}/guides/${savedId}`
+      router.push(redirectTo)
       router.refresh()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to save')
@@ -95,14 +100,19 @@ export function GuideEditor({ guide, documentId, mode }: GuideEditorProps) {
 
       <div>
         <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-zinc-300">Cover Image</label>
-        <div className="flex items-center gap-2">
-          <input type="text" value={coverImageUrl} onChange={(e) => setCoverImageUrl(e.target.value)} placeholder="https://..." className={`${inputClass} flex-1`} />
-          <button type="button" onClick={() => coverRef.current?.click()} disabled={uploading}
-            className="rounded border border-gray-300 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-zinc-600 dark:text-zinc-300 dark:hover:bg-zinc-800">
-            {uploading ? 'Uploading…' : 'Upload'}
-          </button>
-          <input ref={coverRef} type="file" accept="image/*" className="hidden" onChange={handleCoverChange} />
-        </div>
+        {linkId ? (
+          // Shared context: URL input only, no upload
+          <input type="text" value={coverImageUrl} onChange={(e) => setCoverImageUrl(e.target.value)} placeholder="https://..." className={inputClass} />
+        ) : (
+          <div className="flex items-center gap-2">
+            <input type="text" value={coverImageUrl} onChange={(e) => setCoverImageUrl(e.target.value)} placeholder="https://..." className={`${inputClass} flex-1`} />
+            <button type="button" onClick={() => coverRef.current?.click()} disabled={uploading}
+              className="rounded border border-gray-300 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-zinc-600 dark:text-zinc-300 dark:hover:bg-zinc-800">
+              {uploading ? 'Uploading…' : 'Upload'}
+            </button>
+            <input ref={coverRef} type="file" accept="image/*" className="hidden" onChange={handleCoverChange} />
+          </div>
+        )}
         {coverImageUrl && (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={coverImageUrl} alt="Cover preview" className="mt-2 h-24 rounded object-cover" />
@@ -113,10 +123,12 @@ export function GuideEditor({ guide, documentId, mode }: GuideEditorProps) {
         <div className="mb-1 flex items-center justify-between">
           <label htmlFor="guide-content" className="text-sm font-medium text-gray-700 dark:text-zinc-300">Content (Markdown)</label>
           <div className="flex gap-2">
-            <label className="cursor-pointer rounded border border-gray-300 px-2 py-1 text-xs text-gray-600 hover:bg-gray-50 dark:border-zinc-600 dark:text-zinc-400 dark:hover:bg-zinc-800">
-              + Image
-              <input type="file" accept="image/*" className="hidden" onChange={handleContentImage} />
-            </label>
+            {!linkId && (
+              <label className="cursor-pointer rounded border border-gray-300 px-2 py-1 text-xs text-gray-600 hover:bg-gray-50 dark:border-zinc-600 dark:text-zinc-400 dark:hover:bg-zinc-800">
+                + Image
+                <input type="file" accept="image/*" className="hidden" onChange={handleContentImage} />
+              </label>
+            )}
             <button type="button" onClick={() => setPreview((p) => !p)}
               className="rounded border border-gray-300 px-2 py-1 text-xs text-gray-600 hover:bg-gray-50 dark:border-zinc-600 dark:text-zinc-400 dark:hover:bg-zinc-800">
               {preview ? 'Edit' : 'Preview'}

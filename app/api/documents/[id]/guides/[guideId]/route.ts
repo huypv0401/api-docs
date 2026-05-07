@@ -12,11 +12,10 @@ export async function GET(_req: NextRequest, { params }: RouteContext) {
   if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { id, guideId } = await params
-  const docRepo = new DocumentRepository(supabase)
-  if (!(await docRepo.findById(id, user.id))) return Response.json({ error: 'Not found' }, { status: 404 })
+  const perm = await new DocumentRepository(supabase).getPermission(id, user.id)
+  if (!perm) return Response.json({ error: 'Not found' }, { status: 404 })
 
-  const repo = new GuideRepository(supabase)
-  const guide = await repo.findById(guideId, id)
+  const guide = await new GuideRepository(supabase).findById(guideId, id)
   if (!guide) return Response.json({ error: 'Not found' }, { status: 404 })
   return Response.json(guide)
 }
@@ -26,15 +25,15 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
   if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { id, guideId } = await params
-  const docRepo = new DocumentRepository(supabase)
-  if (!(await docRepo.isOwner(id, user.id))) return Response.json({ error: 'Forbidden' }, { status: 403 })
+  const perm = await new DocumentRepository(supabase).getPermission(id, user.id)
+  if (!perm) return Response.json({ error: 'Not found' }, { status: 404 })
+  if (perm === 'viewer') return Response.json({ error: 'Forbidden' }, { status: 403 })
 
   const body = await request.json().catch(() => null)
   const parsed = UpdateGuideSchema.safeParse(body)
   if (!parsed.success) return Response.json({ error: 'Validation failed', issues: parsed.error.issues }, { status: 400 })
 
-  const repo = new GuideRepository(supabase)
-  const guide = await repo.update(guideId, parsed.data, id)
+  const guide = await new GuideRepository(supabase).update(guideId, parsed.data, id)
   if (!guide) return Response.json({ error: 'Not found' }, { status: 404 })
   return Response.json(guide)
 }
@@ -44,11 +43,11 @@ export async function DELETE(_req: NextRequest, { params }: RouteContext) {
   if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { id, guideId } = await params
-  const docRepo = new DocumentRepository(supabase)
-  if (!(await docRepo.isOwner(id, user.id))) return Response.json({ error: 'Forbidden' }, { status: 403 })
+  const perm = await new DocumentRepository(supabase).getPermission(id, user.id)
+  if (!perm) return Response.json({ error: 'Not found' }, { status: 404 })
+  if (perm === 'viewer') return Response.json({ error: 'Forbidden' }, { status: 403 })
 
-  const repo = new GuideRepository(supabase)
-  const ok = await repo.delete(guideId, id)
+  const ok = await new GuideRepository(supabase).delete(guideId, id)
   if (!ok) return Response.json({ error: 'Not found' }, { status: 404 })
   return new Response(null, { status: 204 })
 }

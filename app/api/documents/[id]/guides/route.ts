@@ -13,10 +13,10 @@ export async function GET(_req: NextRequest, { params }: RouteContext) {
 
   const { id } = await params
   const docRepo = new DocumentRepository(supabase)
-  if (!(await docRepo.findById(id, user.id))) return Response.json({ error: 'Not found' }, { status: 404 })
+  const perm = await docRepo.getPermission(id, user.id)
+  if (!perm) return Response.json({ error: 'Not found' }, { status: 404 })
 
-  const repo = new GuideRepository(supabase)
-  return Response.json(await repo.findAllByDocument(id))
+  return Response.json(await new GuideRepository(supabase).findAllByDocument(id))
 }
 
 export async function POST(request: NextRequest, { params }: RouteContext) {
@@ -25,13 +25,14 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
 
   const { id } = await params
   const docRepo = new DocumentRepository(supabase)
-  if (!(await docRepo.isOwner(id, user.id))) return Response.json({ error: 'Forbidden' }, { status: 403 })
+  const perm = await docRepo.getPermission(id, user.id)
+  if (!perm) return Response.json({ error: 'Not found' }, { status: 404 })
+  if (perm === 'viewer') return Response.json({ error: 'Forbidden' }, { status: 403 })
 
   const body = await request.json().catch(() => null)
   const parsed = CreateGuideSchema.safeParse(body)
   if (!parsed.success) return Response.json({ error: 'Validation failed', issues: parsed.error.issues }, { status: 400 })
 
-  const repo = new GuideRepository(supabase)
-  const guide = await repo.create(parsed.data, id)
+  const guide = await new GuideRepository(supabase).create(parsed.data, id)
   return Response.json(guide, { status: 201 })
 }

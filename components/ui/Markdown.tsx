@@ -1,4 +1,22 @@
+'use client'
+
+import { useState } from 'react'
 import ReactMarkdown from 'react-markdown'
+
+function MarkdownImage({ src, alt }: { src?: string; alt?: string }) {
+  const [failed, setFailed] = useState(false)
+  if (failed) {
+    return (
+      <a href={src} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline dark:text-blue-400 text-sm">
+        {alt || src}
+      </a>
+    )
+  }
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src={src} alt={alt ?? ''} className="my-2 max-w-full rounded" onError={() => setFailed(true)} />
+  )
+}
 
 export function Markdown({ children }: { children: string }) {
   return (
@@ -18,6 +36,7 @@ export function Markdown({ children }: { children: string }) {
         pre: ({ children }) => <pre className="mb-2 overflow-auto rounded bg-gray-100 p-3 font-mono text-xs dark:bg-zinc-800">{children}</pre>,
         a: ({ href, children }) => <a href={href} className="text-blue-600 hover:underline dark:text-blue-400" target="_blank" rel="noopener noreferrer">{children}</a>,
         blockquote: ({ children }) => <blockquote className="border-l-2 border-gray-300 pl-3 text-gray-600 dark:border-zinc-600 dark:text-zinc-400">{children}</blockquote>,
+        img: ({ src, alt }) => <MarkdownImage src={src} alt={alt} />,
       }}
     >
       {children}
