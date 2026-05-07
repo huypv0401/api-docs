@@ -21,6 +21,7 @@ export function GuideEditor({ guide, documentId, mode, linkId }: GuideEditorProp
   const [uploading, setUploading] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
   const coverRef = useRef<HTMLInputElement>(null)
 
   const uploadImage = async (file: File): Promise<string> => {
@@ -49,7 +50,21 @@ export function GuideEditor({ guide, documentId, mode, linkId }: GuideEditorProp
     if (!file) return
     try {
       const url = await uploadImage(file)
-      setContent((prev) => prev + `\n![image](${url})\n`)
+      const md = `![image](${url})`
+      const ta = textareaRef.current
+      if (ta) {
+        const start = ta.selectionStart ?? content.length
+        const end = ta.selectionEnd ?? content.length
+        const next = content.slice(0, start) + md + content.slice(end)
+        setContent(next)
+        // restore cursor after inserted text
+        requestAnimationFrame(() => {
+          ta.selectionStart = ta.selectionEnd = start + md.length
+          ta.focus()
+        })
+      } else {
+        setContent((prev) => prev + md)
+      }
     } catch { setError('Failed to upload image') }
     e.target.value = ''
   }
@@ -140,7 +155,7 @@ export function GuideEditor({ guide, documentId, mode, linkId }: GuideEditorProp
             {content ? <Markdown>{content}</Markdown> : <span className="text-gray-400">Nothing to preview</span>}
           </div>
         ) : (
-          <textarea id="guide-content" value={content} onChange={(e) => setContent(e.target.value)}
+          <textarea id="guide-content" ref={textareaRef} value={content} onChange={(e) => setContent(e.target.value)}
             rows={16} placeholder="Write your guide in Markdown…" className={`${inputClass} font-mono text-xs`} />
         )}
       </div>
