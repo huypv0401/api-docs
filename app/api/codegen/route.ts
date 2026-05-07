@@ -1,13 +1,11 @@
 import { NextRequest } from 'next/server'
-import { getUser } from '@/lib/supabase/server'
 import { CodeGenRequestSchema } from '@/lib/schemas'
 import { CodeGenerator } from '@/lib/code-generator'
 import type { CodeLanguage, HTTPMethod } from '@/lib/types'
 
-export async function POST(request: NextRequest) {
-  const { user } = await getUser()
-  if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 })
+export const dynamic = 'force-dynamic'
 
+export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => null)
   const parsed = CodeGenRequestSchema.safeParse(body)
   if (!parsed.success) {

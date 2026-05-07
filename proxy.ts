@@ -51,8 +51,7 @@ export async function proxy(request: NextRequest) {
     request.nextUrl.pathname.startsWith('/documents') ||
     request.nextUrl.pathname.startsWith('/api/documents') ||
     request.nextUrl.pathname.startsWith('/api/import') ||
-    request.nextUrl.pathname.startsWith('/api/export') ||
-    request.nextUrl.pathname.startsWith('/api/codegen')
+    request.nextUrl.pathname.startsWith('/api/export')
   // /shared/* is public — no auth required
 
   if (isProtectedRoute && !user) {

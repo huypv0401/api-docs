@@ -4,6 +4,17 @@ import { useState } from 'react'
 import type { HTTPMethod, CodeLanguage } from '@/lib/types'
 import { CODE_LANGUAGES } from '@/lib/types'
 
+import { Highlight, themes } from 'prism-react-renderer'
+
+const PRISM_LANG: Record<CodeLanguage, string> = {
+  curl: 'bash',
+  python: 'python',
+  csharp: 'csharp',
+  javascript: 'javascript',
+  go: 'go',
+  ruby: 'ruby',
+}
+
 const LANGUAGE_LABELS: Record<CodeLanguage, string> = {
   curl: 'cURL',
   python: 'Python',
@@ -93,7 +104,7 @@ export function CodeSnippetGenerator({ method, url, headers, queryParams, body }
 
       {code && !isLoading && (
         <div className="relative">
-          <div className="absolute right-2 top-2">
+          <div className="absolute right-2 top-2 z-10">
             <button
               onClick={handleCopy}
               className="rounded bg-white/80 px-2 py-1 text-xs text-gray-600 shadow-sm hover:bg-white dark:bg-zinc-700/80 dark:text-zinc-300 dark:hover:bg-zinc-700"
@@ -102,9 +113,19 @@ export function CodeSnippetGenerator({ method, url, headers, queryParams, body }
               {copied ? '✓ Copied' : 'Copy'}
             </button>
           </div>
-          <pre className="overflow-auto rounded bg-gray-50 p-4 font-mono text-xs text-gray-900 dark:bg-zinc-800 dark:text-zinc-100">
-            <code>{code}</code>
-          </pre>
+          <Highlight theme={themes.vsDark} code={code} language={PRISM_LANG[language] as Parameters<typeof Highlight>[0]['language']}>
+            {({ className, style, tokens, getLineProps, getTokenProps }) => (
+              <pre className={`${className} overflow-auto rounded p-4 font-mono text-xs`} style={style}>
+                {tokens.map((line, i) => (
+                  <div key={i} {...getLineProps({ line })}>
+                    {line.map((token, key) => (
+                      <span key={key} {...getTokenProps({ token })} />
+                    ))}
+                  </div>
+                ))}
+              </pre>
+            )}
+          </Highlight>
         </div>
       )}
 
