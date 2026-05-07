@@ -48,6 +48,17 @@ export const CodeGenRequestSchema = z.object({
   language: z.enum(CODE_LANGUAGES as [string, ...string[]]),
 })
 
+export const CreateGuideSchema = z.object({
+  title: z.string().min(1).max(255),
+  content: z.string().default(''),
+  coverImageUrl: z.string().url().nullable().optional(),
+})
+
+export const UpdateGuideSchema = CreateGuideSchema.partial()
+
+export type CreateGuideInput = z.infer<typeof CreateGuideSchema>
+export type UpdateGuideInput = z.infer<typeof UpdateGuideSchema>
+
 export type CreateDocumentInput = z.infer<typeof CreateDocumentSchema>
 export type UpdateDocumentInput = z.infer<typeof UpdateDocumentSchema>
 export type CreateEndpointInput = z.infer<typeof CreateEndpointSchema>

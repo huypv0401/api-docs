@@ -151,6 +151,36 @@ export type Database = {
         }
         Relationships: []
       }
+      guides: {
+        Row: {
+          id: string
+          document_id: string
+          title: string
+          content: string
+          cover_image_url: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          document_id: string
+          title: string
+          content?: string
+          cover_image_url?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          document_id?: string
+          title?: string
+          content?: string
+          cover_image_url?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       share_links: {
         Row: {
           id: string

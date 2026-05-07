@@ -136,6 +136,25 @@ export interface PostmanCollection {
   item: PostmanItem[]
 }
 
+export interface Guide {
+  id: string
+  documentId: string
+  title: string
+  content: string
+  coverImageUrl: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export interface GuideSummary {
+  id: string
+  documentId: string
+  title: string
+  coverImageUrl: string | null
+  createdAt: string
+  updatedAt: string
+}
+
 // Code generation types
 export type CodeLanguage = 'curl' | 'python' | 'csharp' | 'javascript' | 'go' | 'ruby'
 
