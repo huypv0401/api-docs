@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { getUser } from '@/lib/supabase/server'
 import { DocumentEditor } from '@/components/documents/DocumentEditor'
-import { PostmanImport } from '@/components/import-export/PostmanImport'
+import { ApiImport } from '@/components/import-export/ApiImport'
 
 interface PageProps {
   searchParams: Promise<{ tab?: string }>
@@ -43,11 +43,11 @@ export default async function NewDocumentPage({ searchParams }: PageProps) {
               : 'text-gray-500 hover:text-gray-700 dark:text-zinc-400 dark:hover:text-zinc-200'
           }`}
         >
-          Import from Postman
+          Import from file
         </Link>
       </div>
 
-      {isImport ? <PostmanImport /> : <DocumentEditor mode="create" />}
+      {isImport ? <ApiImport /> : <DocumentEditor mode="create" />}
     </div>
   )
 }

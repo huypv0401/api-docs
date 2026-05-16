@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { getUser } from '@/lib/supabase/server'
-import { PostmanImport } from '@/components/import-export/PostmanImport'
+import { ApiImport } from '@/components/import-export/ApiImport'
 
 export default async function ImportPage() {
   const { user } = await getUser()
@@ -13,12 +13,12 @@ export default async function ImportPage() {
         <Link href="/documents" className="text-sm text-gray-500 hover:text-gray-700 dark:text-zinc-400">
           ← Documents
         </Link>
-        <h1 className="mt-2 text-2xl font-bold text-gray-900 dark:text-zinc-100">Import Postman Collection</h1>
+        <h1 className="mt-2 text-2xl font-bold text-gray-900 dark:text-zinc-100">Import API Collection</h1>
         <p className="mt-1 text-sm text-gray-600 dark:text-zinc-400">
-          Upload a Postman Collection v2.1 JSON file to import your API documentation.
+          Upload a Postman Collection v2.1 or OpenAPI 3.x (JSON or YAML) file.
         </p>
       </div>
-      <PostmanImport />
+      <ApiImport />
     </div>
   )
 }
