@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation'
 
 const NAV_LINKS = [
   { href: '/documents', label: 'Documents' },
+  { href: '/viewer', label: 'OpenAPI Viewer' },
 ]
 
 export function Navigation() {
