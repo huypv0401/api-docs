@@ -18,8 +18,6 @@ export function Navigation() {
   const router = useRouter()
   const [menuOpen, setMenuOpen] = useState(false)
 
-  if (!user) return null
-
   const handleSignOut = async () => {
     const supabase = createClient()
     await supabase.auth.signOut()
@@ -34,7 +32,6 @@ export function Navigation() {
             <Link href="/documents" className="text-base font-semibold text-gray-900 dark:text-zinc-100">
               API Docs
             </Link>
-            {/* Desktop nav */}
             <div className="hidden sm:flex sm:gap-4" role="list">
               {NAV_LINKS.map((link) => (
                 <Link
@@ -55,15 +52,23 @@ export function Navigation() {
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="hidden text-xs text-gray-500 dark:text-zinc-400 sm:block">{user.email}</span>
-            <button
-              onClick={handleSignOut}
-              className="hidden rounded bg-gray-100 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700 sm:block"
-            >
-              Sign out
-            </button>
+            {user ? (
+              <>
+                <span className="hidden text-xs text-gray-500 dark:text-zinc-400 sm:block">{user.email}</span>
+                <button
+                  onClick={handleSignOut}
+                  className="hidden rounded bg-gray-100 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700 sm:block"
+                >
+                  Sign out
+                </button>
+              </>
+            ) : (
+              <Link href="/login"
+                className="rounded bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700">
+                Login
+              </Link>
+            )}
 
-            {/* Mobile menu button */}
             <button
               onClick={() => setMenuOpen(!menuOpen)}
               className="rounded p-2 text-gray-600 hover:bg-gray-100 dark:text-zinc-400 dark:hover:bg-zinc-800 sm:hidden"
@@ -83,7 +88,6 @@ export function Navigation() {
         </div>
       </div>
 
-      {/* Mobile menu */}
       {menuOpen && (
         <div id="mobile-menu" className="border-t border-gray-200 dark:border-zinc-800 sm:hidden">
           <div className="space-y-1 px-4 py-3">
@@ -102,15 +106,17 @@ export function Navigation() {
                 {link.label}
               </Link>
             ))}
-            <div className="border-t border-gray-200 pt-2 dark:border-zinc-700">
-              <p className="px-3 py-1 text-xs text-gray-500 dark:text-zinc-400">{user.email}</p>
-              <button
-                onClick={handleSignOut}
-                className="block w-full rounded px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 dark:text-zinc-300 dark:hover:bg-zinc-800"
-              >
-                Sign out
-              </button>
-            </div>
+            {user && (
+              <div className="border-t border-gray-200 pt-2 dark:border-zinc-700">
+                <p className="px-3 py-1 text-xs text-gray-500 dark:text-zinc-400">{user.email}</p>
+                <button
+                  onClick={handleSignOut}
+                  className="block w-full rounded px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                >
+                  Sign out
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}

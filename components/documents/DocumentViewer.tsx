@@ -35,16 +35,19 @@ function RedocViewer({ spec }: { spec: Record<string, unknown> }) {
   useEffect(() => {
     const el = containerRef.current
     if (!el) return
-    el.innerHTML = ''
+    let cancelled = false
+    const mount = document.createElement('div')
+    el.appendChild(mount)
     const processedSpec = applyOperationIdAsSummary(spec)
     const script = document.createElement('script')
     script.src = 'https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js'
     script.onload = () => {
+      if (cancelled) return
       // @ts-expect-error Redoc loaded from CDN
-      window.Redoc.init(processedSpec, { scrollYOffset: 64, theme: { typography: { fontSize: '13px', lineHeight: '1.6' } } }, el)
+      window.Redoc.init(processedSpec, { scrollYOffset: 64, theme: { typography: { fontSize: '13px', lineHeight: '1.6' } } }, mount)
     }
     document.head.appendChild(script)
-    return () => { script.remove() }
+    return () => { cancelled = true; mount.remove(); script.remove() }
   }, [spec])
   return <div ref={containerRef} />
 }

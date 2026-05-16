@@ -40,18 +40,18 @@ function applyOperationIdAsSummary(spec: Record<string, unknown>): Record<string
 
 function RedocViewer({ spec }: { spec: Record<string, unknown> }) {
   const containerRef = useRef<HTMLDivElement>(null)
-
   useEffect(() => {
     const el = containerRef.current
     if (!el) return
     let cancelled = false
-    el.innerHTML = ''
+    const mount = document.createElement('div')
+    el.appendChild(mount)
     const processedSpec = applyOperationIdAsSummary(spec)
 
     const init = () => {
-      if (cancelled || !containerRef.current) return
+      if (cancelled) return
       // @ts-expect-error Redoc is loaded from CDN
-      window.Redoc.init(processedSpec, { scrollYOffset: 64, theme: { typography: { fontSize: '13px', lineHeight: '1.6' } } }, containerRef.current)
+      window.Redoc.init(processedSpec, { scrollYOffset: 64, theme: { typography: { fontSize: '13px', lineHeight: '1.6' } } }, mount)
     }
 
     // @ts-expect-error Redoc is loaded from CDN
@@ -64,9 +64,8 @@ function RedocViewer({ spec }: { spec: Record<string, unknown> }) {
       document.head.appendChild(script)
     }
 
-    return () => { cancelled = true; if (containerRef.current) containerRef.current.innerHTML = '' }
+    return () => { cancelled = true; mount.remove() }
   }, [spec])
-
   return <div ref={containerRef} />
 }
 

@@ -33,12 +33,14 @@ function RedocViewer({ spec }: { spec: Record<string, unknown> }) {
   const ref = useRef<HTMLDivElement>(null)
   useEffect(() => {
     const el = ref.current; if (!el) return
-    let cancelled = false; el.innerHTML = ''
+    let cancelled = false
+    const mount = document.createElement('div')
+    el.appendChild(mount)
     const processed = applyOperationIdAsSummary(spec)
     const init = () => {
-      if (cancelled || !ref.current) return
+      if (cancelled) return
       // @ts-expect-error CDN
-      window.Redoc.init(processed, { scrollYOffset: 64, theme: { typography: { fontSize: '13px', lineHeight: '1.6' } } }, ref.current)
+      window.Redoc.init(processed, { scrollYOffset: 64, theme: { typography: { fontSize: '13px', lineHeight: '1.6' } } }, mount)
     }
     // @ts-expect-error CDN
     if (window.Redoc) { init() } else {
@@ -46,7 +48,7 @@ function RedocViewer({ spec }: { spec: Record<string, unknown> }) {
       s.src = 'https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js'
       s.onload = init; document.head.appendChild(s)
     }
-    return () => { cancelled = true; if (ref.current) ref.current.innerHTML = '' }
+    return () => { cancelled = true; mount.remove() }
   }, [spec])
   return <div ref={ref} />
 }
