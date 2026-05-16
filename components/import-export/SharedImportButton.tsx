@@ -2,7 +2,6 @@
 
 import { useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { detectFormat } from '@/lib/format-detector'
 
 async function parseFile(file: File): Promise<unknown> {
   const text = await file.text()
@@ -13,12 +12,7 @@ async function parseFile(file: File): Promise<unknown> {
   return JSON.parse(text)
 }
 
-const FORMAT_ENDPOINTS: Record<string, string> = {
-  postman: '/api/import/postman',
-  openapi: '/api/import/openapi',
-}
-
-export function SharedImportButton({ documentId }: { documentId: string }) {
+export function SharedImportButton({ linkId }: { linkId: string }) {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
@@ -32,17 +26,13 @@ export function SharedImportButton({ documentId }: { documentId: string }) {
       let parsed: unknown
       try { parsed = await parseFile(file) } catch { throw new Error('File could not be parsed as JSON or YAML') }
 
-      const format = detectFormat(parsed)
-      const endpoint = FORMAT_ENDPOINTS[format]
-      if (!endpoint) throw new Error('Unrecognized format. Upload a Postman Collection v2.1 or OpenAPI 3.x file.')
-
-      const res = await fetch(`${endpoint}?documentId=${documentId}`, {
+      const res = await fetch(`/api/shared/${linkId}/import`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(parsed),
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error ?? data.detail ?? 'Import failed')
+      if (!res.ok) throw new Error(data.error ?? 'Import failed')
       router.refresh()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Import failed')

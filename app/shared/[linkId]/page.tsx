@@ -1,13 +1,9 @@
 import { notFound } from 'next/navigation'
-import Link from 'next/link'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import type { Database } from '@/lib/supabase/types'
 import { DocumentRepository } from '@/lib/repositories'
-import { EndpointList } from '@/components/documents/EndpointList'
-import { Markdown } from '@/components/ui/Markdown'
-import { SharedExportButton } from '@/components/import-export/SharedExportButton'
-import { SharedImportButton } from '@/components/import-export/SharedImportButton'
+import { SharedDocumentPageClient } from '@/components/sharing/SharedDocumentPageClient'
 
 interface PageProps {
   params: Promise<{ linkId: string }>
@@ -43,45 +39,11 @@ export default async function SharedDocumentPage({ params }: PageProps) {
   const doc = await repo.findById(link.document_id, meta.owner_id)
   if (!doc) notFound()
 
-  const canEdit = link.permission_type === 'editor'
-
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <div className="mb-1 flex items-center gap-2">
-            <span className={`rounded px-2 py-0.5 text-xs font-medium ${canEdit ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'bg-gray-100 text-gray-600 dark:bg-zinc-700 dark:text-zinc-300'}`}>
-              {canEdit ? 'Can edit' : 'View only'}
-            </span>
-            <span className="text-xs text-gray-400 dark:text-zinc-500">Shared document</span>
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-zinc-100">{doc.title}</h1>
-          {doc.description && (
-            <div className="mt-1 text-sm text-gray-600 dark:text-zinc-400">
-              <Markdown>{doc.description}</Markdown>
-            </div>
-          )}
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2">
-          <SharedExportButton linkId={linkId} title={doc.title} />
-          {canEdit && <SharedImportButton documentId={doc.id} />}
-          <Link
-            href={`/shared/${linkId}/guides`}
-            className="rounded bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
-          >
-            Guides
-          </Link>
-        </div>
-      </div>
-
-      {doc.endpoints.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-gray-300 p-8 text-center dark:border-zinc-700">
-          <p className="text-sm text-gray-500 dark:text-zinc-400">No endpoints.</p>
-        </div>
-      ) : (
-        <EndpointList endpoints={doc.endpoints} documentId={doc.id} isOwner={canEdit} />
-      )}
-    </div>
+    <SharedDocumentPageClient
+      doc={doc}
+      linkId={linkId}
+      canEdit={link.permission_type === 'editor'}
+    />
   )
 }
